@@ -5,7 +5,7 @@ import ProductTable from "@/components/ProductTable";
 import { getProducts } from "@/lib/actions/product.actions";
 import { useEffect, useState } from "react";
 
-const ProductsPage = () => {
+const Page = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -14,15 +14,15 @@ const ProductsPage = () => {
         const productsData = await getProducts();
         setProducts(productsData);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching products:", error); // Debug log
       }
     };
 
     fetchProducts();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
 
   return (
-    <div className='lg:p-10 max-md:pt-16'>
+    <div className='p-6 lg:p-10'>
       <h1 className='text-3xl font-medium mb-10 px-2'>Products</h1>
       <div className="w-full px-2">
         <ProductTable products={products}/>
@@ -31,4 +31,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+export default Page;

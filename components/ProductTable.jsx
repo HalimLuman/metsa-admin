@@ -19,6 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { formatHeader } from "@/lib/utils";
 
 const ProductTable = ({ products }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -115,22 +116,22 @@ const ProductTable = ({ products }) => {
               onClick={() => router.push(`/dashboard/${product.$id}`)}
               className={`cursor-pointer ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
             >
-              <TableCell className="border-r pr-0 pl-6 bg-white">{index+1}</TableCell>
+              <TableCell className="border-r pr-0 pl-6 bg-white">{index + 1}</TableCell>
               <TableCell className="p-2 pr-0">
                 <Image
                   src={`${product.image}`}
                   width={80}
-                  height={60}
+                  height={50}
                   alt={product.productName}
-                  className="rounded-lg h-[60px]"
+                  className="rounded-lg h-[50px]"
                 />
               </TableCell>
-              <TableCell>{product.productName}</TableCell>
-              <TableCell>{product.productDescription}</TableCell>
-              <TableCell>{product.category}</TableCell>
-              <TableCell>{product.subcategory}</TableCell>
-              <TableCell>{product.referenceNumber}</TableCell>
-              <TableCell>{product.price} MKD</TableCell>
+              <TableCell className="max-w-xs truncate">{product.productName}</TableCell>
+              <TableCell className="max-w-xs truncate">{product.productDescription}</TableCell>
+              <TableCell className="max-w-xs truncate">{formatHeader(product.category)}</TableCell>
+              <TableCell className="max-w-xs truncate">{formatHeader(product.subcategory)}</TableCell>
+              <TableCell className="max-w-xs truncate">{product.referenceNumber}</TableCell>
+              <TableCell className="max-w-xs truncate">{product.price} MKD</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -147,13 +148,13 @@ const ProductTable = ({ products }) => {
             />
           </PaginationItem>
           {getPaginationItems()}
-        <PaginationItem key="next">
-          <PaginationNext
-            href="#"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          />
-        </PaginationItem>
+          <PaginationItem key="next">
+            <PaginationNext
+              href="#"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            />
+          </PaginationItem>
         </PaginationContent>
       </Pagination>
     </div>

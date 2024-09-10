@@ -3,15 +3,13 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav"; // Import MobileNav component
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayout({ children }) {
+const RootLayout = ({ children }) => {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body className={`${inter.className} flex max-lg:flex-col min-h-screen`}>
         {/* Mobile Navigation */}
           <MobileNav />
           <Sidebar />
@@ -29,3 +27,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+export default RootLayout

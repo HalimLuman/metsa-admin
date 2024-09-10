@@ -1,10 +1,36 @@
+'use client'
 import { logo2 } from "@/public";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { CiBoxes, CiCirclePlus, CiDeliveryTruck, CiEdit, CiGrid41, CiHome } from "react-icons/ci";
+import { MdLogout } from "react-icons/md";
+import { Button } from "./ui/button";
 
 const Sidebar = () => {
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      // Call the logout API endpoint
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+  
+      // Check if the logout was successful
+      if (response.ok) {
+        // Remove item from localStorage
+        localStorage.removeItem("auth");
+  
+        // Redirect to sign-in page
+        router.push("/sign-in");
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('An error occurred while logging out:', error);
+    }
+  };
   return (
     <div className="hidden lg:block w-[20%] border-r min-h-screen bg-gray-100">
       <div className="w-full p-4">
@@ -18,8 +44,8 @@ const Sidebar = () => {
 
           <Link href="/dashboard">
             <div className="flex items-center gap-3 hover:bg-blue-500 p-2 py-3 rounded-lg hover:text-white">
-              <CiGrid41  className="text-xl"/>
-              <span className="">Dashboard</span>
+              <CiBoxes  className="text-xl"/>
+              <span className="">Products</span>
             </div>
           </Link>
           <Link href="/dashboard/create">
@@ -34,18 +60,18 @@ const Sidebar = () => {
               <span className="">Update</span>
             </div>
           </Link>
-          <Link href="/dashboard/products">
-            <div className="flex items-center gap-3 hover:bg-blue-500 p-2 py-3 rounded-lg hover:text-white">
-              <CiBoxes  className="text-xl"/>
-              <span className="">Products</span>
-            </div>
-          </Link>
           <Link href="/dashboard/orders">
             <div className="flex items-center gap-3 hover:bg-blue-500 p-2 py-3 rounded-lg hover:text-white">
               <CiDeliveryTruck className="text-xl"/>
               <span className="">Orders</span>
             </div>
           </Link>
+          <Button onClick={handleLogout} className="px-0 h-[45px] flex justify-start bg-transparent text-black hover:bg-gray-200">
+            <div className="flex items-center gap-2 p-2 py-3 rounded-lg">
+              <MdLogout className="text-xl"/>
+              <span className="">Logout</span>
+            </div>
+          </Button>
         </div>
         <div></div>
       </div>

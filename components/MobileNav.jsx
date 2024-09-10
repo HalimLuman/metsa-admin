@@ -21,7 +21,7 @@ const MobileNav = () => {
   const dropdownMenu = [
     {
       link : '',
-      title: 'Dashboard',
+      title: 'Products',
     },
     {
       link : 'create',
@@ -32,8 +32,8 @@ const MobileNav = () => {
       title: 'Update',
     },
     {
-      link : 'products',
-      title: 'Products',
+      link : 'orders',
+      title: 'Orders',
     },
   ]
 

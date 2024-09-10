@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation"; // If using Next.js
 import { deleteProductById, getProductById } from "@/lib/actions/product.actions";
+import { Button } from "@/components/ui/button";
+import { formatHeader } from "@/lib/utils";
 
-const ProductPage = ({ productId }) => {
+const ProductPage = () => {
   const [product, setProduct] = useState(null);
   const router = useRouter();
   const params = useParams();
@@ -42,7 +44,7 @@ const ProductPage = ({ productId }) => {
 
   return (
     <div className="p-6 md:p-10 w-full">
-      <h1 className="text-2xl font-medium mb-6">{product.productName}</h1>
+      <h1 className="text-2xl font-semibold mb-6 pb-3 border-b">Product Management</h1>
 
       <div className="flex flex-col md:flex-row gap-10 items-start bg-white p-6 rounded-md">
         {/* Product Image */}
@@ -57,11 +59,11 @@ const ProductPage = ({ productId }) => {
           </p>
 
           <p className="text-gray-600 mb-2">
-            <span className="font-semibold">Category: </span>{product.category}
+            <span className="font-semibold">Category: </span>{formatHeader(product.category)}
           </p>
 
           <p className="text-gray-600 mb-2">
-            <span className="font-semibold">Subcategory: </span>{product.subcategory}
+            <span className="font-semibold">Subcategory: </span>{formatHeader(product.subcategory)}
           </p>
 
           <p className="text-gray-600 mb-2">
@@ -72,13 +74,21 @@ const ProductPage = ({ productId }) => {
             Price: ${product.price}
           </p>
 
-          {/* Remove Product Button */}
-          <button
+          <div className="flex flex-col gap-3">
+
+          <Button
             onClick={handleRemoveProduct}
-            className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition"
+            className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition w-[150px]"
           >
-            Remove Product
-          </button>
+            Remove
+          </Button>
+          <Button
+            onClick={() => router.push('/dashboard/update')}
+            className=" bg-white border text-black py-2 px-4 rounded hover:bg-gray-200 transition w-[150px]"
+          >
+            Update
+          </Button>
+          </div>
         </div>
       </div>
     </div>

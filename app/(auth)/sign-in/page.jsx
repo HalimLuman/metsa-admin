@@ -6,8 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { account } from "@/app/api/appwrite.config";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -18,11 +17,6 @@ const SignIn = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    const isAdmin = localStorage.getItem("accessKey");
-    router.push(isAdmin ? "/dashboard" : "/sign-in");
-  }, [router]);
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,16 +25,39 @@ const SignIn = () => {
     },
   });
 
-  const login = async (email, password) => {
+  const onSubmit = async (values) => {
+    const { email, password } = values;
     try {
-      await account.createEmailPasswordSession(email, password);
-      router.push("/dashboard");
+      const response = await fetch("/api/auth/login", {
+        method: "POST", // Ensure it's a POST request
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }), // Send email and password in the request body
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to log in");
+      }
+  
+      const data = await response.json();
+      console.log(data.success)
+  
+      if (data.success) {
+        localStorage.setItem("auth", "true"); // Set authentication flag
+        console.log('navigating 1')
+        router.push("/dashboard"); // Redirect to dashboard after login
+        console.log('navigating 2')
+      } else {
+        setErrorMessage(data.message || "Invalid email or password");
+      }
     } catch (error) {
-      setErrorMessage("Invalid credentials. Please check your email and password.");
+      setErrorMessage(error.message || "An error occurred");
     }
   };
-
-  const onSubmit = (values) => login(values.email, values.password);
+  
+  
+  
 
   return (
     <div className="w-full flex items-center justify-center min-h-screen bg-gray-100">

@@ -1,12 +1,9 @@
 "use client";
 
-import { InputFile } from "appwrite";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Select,
   SelectContent,
@@ -27,46 +23,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { dropdownMenu } from "@/constants";
-import { Toaster } from "@/components/ui/toaster";
-
-import { useDropzone } from "react-dropzone";
-import { databases, storage } from "@/lib/appwrite.config";
-import { ID } from "appwrite";
-import { createProduct } from "@/lib/actions/product.actions";
-import { convertFileToUrl } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { getProducts, updateProduct } from "@/lib/actions/product.actions";
 import FileUploader from "@/components/FileUploader";
 
 const formSchema = z.object({
-  productName: z
-    .string()
-    .min(2, "Product name must be at least 2 characters")
-    .max(100, "Product name must be at most 100 characters"),
-  productDescription: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description must be at most 500 characters"),
-  referenceNumber: z
-    .string()
-    .min(2, "Reference number must be at least 2 characters")
-    .max(50, "Reference number must be at most 50 characters"),
-  category: z
-    .string()
-    .min(1, "Category is required")
-    .max(50, "Category must be at most 50 characters"),
-  subcategory: z
-    .string()
-    .min(1, "Subcategory is required")
-    .max(50, "Subcategory must be at most 50 characters"),
-  price: z
-    .string()
-    .min(1, "Price is required")
-    .max(10, "Price must be at most 10 characters"),
-  image: z.any().refine((files) => files?.length === 1, "Image is required"),
+  productName: z.string().min().max(100),
+  productDescription: z.string().min().max(500),
+  referenceNumber: z.string().min().max(50),
+  category: z.string().min(),
+  subcategory: z.string().min(),
+  price: z.string().min(1),
+  image: z.any().optional().refine((files) => !files || files.length === 1, "Image must be a single file or empty."),
 });
 
-import { useRouter } from "next/navigation";
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [products, setProducts] = useState([]);
   const router = useRouter();
 
   const form = useForm({
@@ -81,6 +55,35 @@ const Page = () => {
       image: null,
     },
   });
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getProducts();
+        setProducts(productsData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (selectedProductId) {
+      const product = products.find((p) => p.$id === selectedProductId);
+      if (product) {
+        form.reset({
+          productName: product.productName,
+          productDescription: product.productDescription,
+          referenceNumber: product.referenceNumber,
+          category: product.category,
+          subcategory: product.subcategory,
+          price: product.price,
+        });
+      }
+    }
+  }, [selectedProductId, products, form]);
 
   const onSubmit = async (values) => {
     let formData;
@@ -98,40 +101,65 @@ const Page = () => {
     try {
       const productData = {
         ...values,
-        image: formData,
       };
-      //@ts-ignore
-      const product = await createProduct(productData);
-      if(product){
-        router.push('/dashboard')
+
+      if (selectedProductId) {
+        //@ts-ignore
+        await updateProduct(selectedProductId, productData);
       }
+
+      router.push("/dashboard");
     } catch (error) {
       console.log(error);
     }
   };
 
   const selectedCategoryValue = form.watch("category");
-
   useEffect(() => {
     setSelectedCategory(selectedCategoryValue);
-    form.setValue("subcategory", ""); // Reset subcategory when category changes
+    form.setValue("subcategory", "");
   }, [selectedCategoryValue]);
 
   const subcategories =
-    dropdownMenu.find((item) => item.link === selectedCategory)
+    dropdownMenu.find((item) => item.category === selectedCategory)
       ?.subcategory || [];
-
-  const onDrop = useCallback((acceptedFiles) => {
-    onChange(acceptedFiles);
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 p-10 w-full flex flex-col"
+        className="space-y-8 p-10 w-full"
       >
+        <FormField
+          control={form.control}
+          name="product"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setSelectedProductId(value);
+                  }}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger className="h-14 text-gray-400 shadow-md">
+                    <SelectValue placeholder="Select one of the products..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products.map((product) => (
+                      <SelectItem key={product.$id} value={product.$id}>
+                        {product.productName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="productName"
@@ -139,7 +167,11 @@ const Page = () => {
             <FormItem>
               <FormLabel>Product Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter the product name" className="h-12" {...field} />
+                <Input 
+                  placeholder="Enter the product name" 
+                  {...field} 
+                  className="h-12" // Increased height
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -155,8 +187,8 @@ const Page = () => {
               <FormControl>
                 <Textarea
                   placeholder="Enter the product description"
-                  className="h-32"
                   {...field}
+                  className="h-32" // Increased height
                 />
               </FormControl>
               <FormMessage />
@@ -171,7 +203,11 @@ const Page = () => {
             <FormItem>
               <FormLabel>Reference Number</FormLabel>
               <FormControl>
-                <Input placeholder="Enter the reference number" className="h-12" {...field} />
+                <Input 
+                  placeholder="Enter the reference number" 
+                  {...field} 
+                  className="h-12" // Increased height
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -195,7 +231,7 @@ const Page = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {dropdownMenu.map((item) => (
-                        <SelectItem key={item.category} value={item.link}>
+                        <SelectItem key={item.category} value={item.category}>
                           {item.category}
                         </SelectItem>
                       ))}
@@ -225,7 +261,7 @@ const Page = () => {
                       {subcategories.map((subcategory) => (
                         <SelectItem
                           key={subcategory.link}
-                          value={subcategory.link}
+                          value={subcategory.category}
                         >
                           {subcategory.category}
                         </SelectItem>
@@ -246,7 +282,12 @@ const Page = () => {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter the price" className="h-12" {...field} />
+                <Input 
+                  type="number" 
+                  placeholder="Enter the price" 
+                  {...field} 
+                  className="h-12" // Increased height
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -267,7 +308,7 @@ const Page = () => {
           )}
         />
 
-        <Button type="submit" className="w-[200px] bg-[#5985d0] h-12 hover:bg-[#547fc7] hover:shadow-md">Submit</Button>
+        <Button type="submit" className="w-full bg-[#5985d0] text-md h-12 hover:bg-[#547fc7] hover:shadow-md">Submit</Button>
       </form>
     </Form>
   );
