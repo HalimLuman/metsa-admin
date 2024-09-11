@@ -34,7 +34,13 @@ const formSchema = z.object({
   category: z.string().min(),
   subcategory: z.string().min(),
   price: z.string().min(1),
-  image: z.any().optional().refine((files) => !files || files.length === 1, "Image must be a single file or empty."),
+  image: z
+    .any()
+    .optional()
+    .refine(
+      (files) => !files || files.length === 1,
+      "Image must be a single file or empty."
+    ),
 });
 
 const Page = () => {
@@ -66,7 +72,7 @@ const Page = () => {
         setProducts([]); // Set products to an empty array in case of error
       }
     };
-  
+
     fetchProducts();
   }, []);
 
@@ -148,11 +154,15 @@ const Page = () => {
                     <SelectValue placeholder="Select one of the products..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {products.map((product) => (
-                      <SelectItem key={product.$id} value={product.$id}>
-                        {product.productName}
-                      </SelectItem>
-                    ))}
+                    {Array.isArray(products) && products.length > 0 ? (
+                      products.map((product) => (
+                        <SelectItem key={product.$id} value={product.$id}>
+                          {product.productName}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem disabled>No products available</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -168,9 +178,9 @@ const Page = () => {
             <FormItem>
               <FormLabel>Product Name</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Enter the product name" 
-                  {...field} 
+                <Input
+                  placeholder="Enter the product name"
+                  {...field}
                   className="h-12" // Increased height
                 />
               </FormControl>
@@ -204,9 +214,9 @@ const Page = () => {
             <FormItem>
               <FormLabel>Reference Number</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Enter the reference number" 
-                  {...field} 
+                <Input
+                  placeholder="Enter the reference number"
+                  {...field}
                   className="h-12" // Increased height
                 />
               </FormControl>
@@ -283,10 +293,10 @@ const Page = () => {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Enter the price" 
-                  {...field} 
+                <Input
+                  type="number"
+                  placeholder="Enter the price"
+                  {...field}
                   className="h-12" // Increased height
                 />
               </FormControl>
@@ -309,7 +319,12 @@ const Page = () => {
           )}
         />
 
-        <Button type="submit" className="w-full bg-[#5985d0] text-md h-12 hover:bg-[#547fc7] hover:shadow-md">Submit</Button>
+        <Button
+          type="submit"
+          className="w-full bg-[#5985d0] text-md h-12 hover:bg-[#547fc7] hover:shadow-md"
+        >
+          Submit
+        </Button>
       </form>
     </Form>
   );
