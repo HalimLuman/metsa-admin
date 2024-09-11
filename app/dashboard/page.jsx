@@ -12,14 +12,15 @@ const Page = () => {
     const fetchProducts = async () => {
       try {
         const productsData = await getProducts();
-        setProducts(productsData);
+        setProducts(productsData || []); // Ensure productsData is always an array
       } catch (error) {
-        console.error("Error fetching products:", error); // Debug log
+        console.error("Error fetching products:", error);
+        setProducts([]); // Set products to an empty array in case of error
       }
     };
-
+  
     fetchProducts();
-  }, []); // Empty dependency array ensures this runs only once
+  }, []);
 
   return (
     <div className='p-6 lg:p-10'>

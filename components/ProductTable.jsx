@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/pagination";
 import { formatHeader } from "@/lib/utils";
 
-const ProductTable = ({ products }) => {
+const ProductTable = ({ products = [] }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
@@ -110,30 +110,38 @@ const ProductTable = ({ products }) => {
           </TableRow>
         </TableHeader>
         <TableBody className="border">
-          {paginatedProducts.map((product, index) => (
-            <TableRow
-              key={index}
-              onClick={() => router.push(`/dashboard/${product.$id}`)}
-              className={`cursor-pointer ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
-            >
-              <TableCell className="border-r pr-0 pl-6 bg-white">{index + 1}</TableCell>
-              <TableCell className="p-2 pr-0">
-                <Image
-                  src={`${product.image}`}
-                  width={80}
-                  height={50}
-                  alt={product.productName}
-                  className="rounded-lg h-[50px]"
-                />
+          {paginatedProducts.length > 0 ? (
+            paginatedProducts.map((product, index) => (
+              <TableRow
+                key={index}
+                onClick={() => router.push(`/dashboard/${product.$id}`)}
+                className={`cursor-pointer ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
+              >
+                <TableCell className="border-r pr-0 pl-6 bg-white">{startIndex + index + 1}</TableCell>
+                <TableCell className="p-2 pr-0">
+                  <Image
+                    src={product.image || "/placeholder.png"} // Fallback for missing image
+                    width={80}
+                    height={50}
+                    alt={product.productName}
+                    className="rounded-lg h-[50px]"
+                  />
+                </TableCell>
+                <TableCell className="max-w-xs truncate">{product.productName}</TableCell>
+                <TableCell className="max-w-xs truncate">{product.productDescription}</TableCell>
+                <TableCell className="max-w-xs truncate">{formatHeader(product.category)}</TableCell>
+                <TableCell className="max-w-xs truncate">{formatHeader(product.subcategory)}</TableCell>
+                <TableCell className="max-w-xs truncate">{product.referenceNumber}</TableCell>
+                <TableCell className="max-w-xs truncate">{product.price} MKD</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan="8" className="text-center py-5">
+                No products found.
               </TableCell>
-              <TableCell className="max-w-xs truncate">{product.productName}</TableCell>
-              <TableCell className="max-w-xs truncate">{product.productDescription}</TableCell>
-              <TableCell className="max-w-xs truncate">{formatHeader(product.category)}</TableCell>
-              <TableCell className="max-w-xs truncate">{formatHeader(product.subcategory)}</TableCell>
-              <TableCell className="max-w-xs truncate">{product.referenceNumber}</TableCell>
-              <TableCell className="max-w-xs truncate">{product.price} MKD</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 
