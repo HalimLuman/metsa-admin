@@ -60,12 +60,13 @@ const Page = () => {
     const fetchProducts = async () => {
       try {
         const productsData = await getProducts();
-        setProducts(productsData);
+        setProducts(productsData || []); // Ensure productsData is always an array
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching products:", error);
+        setProducts([]); // Set products to an empty array in case of error
       }
     };
-
+  
     fetchProducts();
   }, []);
 
