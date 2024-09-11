@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { CiBoxes, CiCirclePlus, CiDeliveryTruck, CiEdit, CiGrid41, CiHome } from "react-icons/ci";
+import { CiBoxes, CiCirclePlus, CiDeliveryTruck, CiEdit } from "react-icons/ci";
 import { MdLogout } from "react-icons/md";
 import { Button } from "./ui/button";
 
