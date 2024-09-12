@@ -242,7 +242,7 @@ const Page = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {dropdownMenu.map((item) => (
-                        <SelectItem key={item.category} value={item.category}>
+                        <SelectItem key={item.category} value={item.link}>
                           {item.category}
                         </SelectItem>
                       ))}
@@ -272,7 +272,7 @@ const Page = () => {
                       {subcategories.map((subcategory) => (
                         <SelectItem
                           key={subcategory.link}
-                          value={subcategory.category}
+                          value={subcategory.link}
                         >
                           {subcategory.category}
                         </SelectItem>
